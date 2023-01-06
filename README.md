@@ -10,8 +10,8 @@ Install-Module MountVault
 # Consider adding the following lines to your profile:
 Import-Module MountVault
 
-# Add a PSDrive for every instance of vault you wish to mount. Add this to your profile so that it will always be present
-New-PSDrive -Name vault -PSProvider MountVault -Root '' -VaultAddress 127.0.0.1:8500
+# Add a PSDrive for every instance of vault you wish to mount. Add this to your profile so that it will always be present (replace 127.0.0.1 with the actual dns name or ip of your vault instance) 
+New-PSDrive -Name vault -PSProvider MountVault -Root '' -VaultAddress 127.0.0.1:8200
 ```
 
 ## Authentication
