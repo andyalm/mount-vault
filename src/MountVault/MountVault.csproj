@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>MountVault</RootNamespace>
+    <PowershellProviderName>MountVault</PowershellProviderName>
+    <ProjectGuid>f848b288-90bd-470d-9902-b8e55dddc954</ProjectGuid>
+    <Authors>Andy Alm</Authors>
+    <Copyright>(c) 2023 Andy Alm. All rights reserved.</Copyright>
+    <Description>An experimental powershell provider that allows you to browse vault as a filesystem</Description>
+    <PackageLicenseUrl>https://github.com/andyalm/mount-vault/blob/main/LICENSE</PackageLicenseUrl>
+    <!--PackageIconUrl>https://github.com/andyalm/mount-vault/blob/main/mount-vault.png</PackageIconUrl-->
+    <PackageProjectUrl>https://github.com/andyalm/mount-vault</PackageProjectUrl>
+    <PackageReleaseNotes>$(GithubReleaseNotes)</PackageReleaseNotes>
+    <PackageVersion Condition="$(GithubReleaseTag)!=''">$(GithubReleaseTag.Substring(1))</PackageVersion>
+    <PackageVersion Condition="$(PackageVersion)==''">0.0.1</PackageVersion>
+    <PublishDir>..\..\bin\MountVault\</PublishDir>
+    <LangVersion>11.0</LangVersion>
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MountAnything" Version="0.7.0-beta09" />
+    <PackageReference Include="MountAnything.Hosting.Build" Version="0.7.0-beta09">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.PowerShell.Commands.Utility" Version="7.2.0" />
+    <PackageReference Include="System.Management.Automation" Version="7.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PSFormat Include="Formats.ps1xml" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <FunctionsToExport>
+
+    </FunctionsToExport>
+    <AliasesToExport>
+
+    </AliasesToExport>
+  </PropertyGroup>
+
+</Project>
