@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using MountAnything;
 using MountAnything.Routing;
+using MountVault.Authentication;
 using MountVault.Secrets;
 
 namespace MountVault;
@@ -13,6 +14,8 @@ public class MountVaultProvider : IMountAnythingProvider
         router.RegisterServices(builder =>
         {
             builder.Register(c => (VaultDriveInfo)c.Resolve<IPathHandlerContext>().DriveInfo);
+            builder.Register(c =>
+                AuthenticationFactory.GetAuthenticator(c.Resolve<VaultDriveInfo>()));
             builder.RegisterType<VaultClient>();
         });
         router.MapLiteral<SecretRootHandler>(SecretRootHandler.LiteralContainerName, secret =>

@@ -1,5 +1,6 @@
 using System.Management.Automation;
 using MountAnything;
+using MountVault.Authentication;
 
 namespace MountVault;
 
@@ -7,11 +8,11 @@ public class VaultDriveHandler : IDriveHandler, INewDriveParameters<VaultDrivePa
 {
     public PSDriveInfo NewDrive(PSDriveInfo driveInfo)
     {
-        var vaultAddress = NewDriveParameters.VaultAddress.StartsWith("https://")
-            ? NewDriveParameters.VaultAddress
-            : $"https://{NewDriveParameters.VaultAddress}";
+        var vaultDrive = new VaultDriveInfo(driveInfo, NewDriveParameters);
+        
+        AuthenticationFactory.GetAuthenticator(vaultDrive).Validate(vaultDrive);
 
-        return new VaultDriveInfo(driveInfo, new Uri(vaultAddress), NewDriveParameters.VaultTokenEnvironmentVariable);
+        return vaultDrive;
     }
 
     public VaultDriveParameters NewDriveParameters { get; set; } = null!;
@@ -19,32 +20,35 @@ public class VaultDriveHandler : IDriveHandler, INewDriveParameters<VaultDrivePa
 
 public class VaultDriveInfo : PSDriveInfo
 {
-    public VaultDriveInfo(PSDriveInfo driveInfo, Uri vaultAddress, string vaultTokenEnvironmentVariable) : base(driveInfo)
+    public VaultDriveInfo(PSDriveInfo driveInfo, VaultDriveParameters parameters) : base(driveInfo)
     {
-        VaultAddress = vaultAddress;
-        VaultTokenEnvironmentVariable = vaultTokenEnvironmentVariable;
+        var vaultUri = parameters.VaultAddress.StartsWith("https://")
+            ? parameters.VaultAddress
+            : $"https://{parameters.VaultAddress}";
+        VaultAddress = new Uri(vaultUri);
+        VaultTokenEnvironmentVariable = parameters.VaultTokenEnvironmentVariable;
+        AuthType = parameters.AuthType;
     }
 
     public Uri VaultAddress { get; }
+    public VaultAuthType AuthType { get; }
     public string VaultTokenEnvironmentVariable { get; }
-    
-    public string GetVaultToken()
-    {
-        var vaultToken = Environment.GetEnvironmentVariable(VaultTokenEnvironmentVariable);
-        if (string.IsNullOrEmpty(vaultToken))
-        {
-            throw new InvalidOperationException(
-                $"The environment variable '{VaultTokenEnvironmentVariable}' is not set");
-        }
+    public AuthResult? CachedAuthResult { get; set; }
+}
 
-        return vaultToken;
-    }
+public enum VaultAuthType
+{
+    TokenEnv,
+    Ldap,
 }
 
 public class VaultDriveParameters
 {
     [Parameter(Mandatory = true)]
     public string VaultAddress { get; set; } = null!;
+
+    [Parameter]
+    public VaultAuthType AuthType { get; set; } = VaultAuthType.TokenEnv;
 
     [Parameter] 
     public string VaultTokenEnvironmentVariable { get; set; } = "VAULT_TOKEN";

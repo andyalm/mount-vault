@@ -19,7 +19,15 @@ public static class HttpClientExtensions
         return JsonSerializer.Deserialize<TResponseBody>(responseStream, Options)!;
     }
 
-    public static void PostJson(this HttpClient client, string uri, object postBody)
+    public static TResponseBody PostJson<TResponseBody>(this HttpClient client, string uri, object postBody)
+    {
+        var response = client.PostJson(uri, postBody);
+
+        using var responseStream = response.Content.ReadAsStream();
+        return JsonSerializer.Deserialize<TResponseBody>(responseStream, Options)!;
+    }
+    
+    public static HttpResponseMessage PostJson(this HttpClient client, string uri, object postBody)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, uri);
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -27,6 +35,8 @@ public static class HttpClientExtensions
         var response = client.Send(request);
 
         ThrowIfNotSuccessful(response, request);
+
+        return response;
     }
 
     private static void ThrowIfNotSuccessful(HttpResponseMessage response, HttpRequestMessage request)
@@ -57,7 +67,7 @@ public static class HttpClientExtensions
     
     private static readonly JsonSerializerOptions Options = new()
     {
-        PropertyNamingPolicy = null,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         NumberHandling = JsonNumberHandling.AllowReadingFromString
     };
 }

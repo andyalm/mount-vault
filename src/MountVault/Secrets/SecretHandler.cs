@@ -88,7 +88,7 @@ public class SecretHandler : PathHandler,
         _client.SetSecret(_secretPath.Path, secretValues);
     }
 
-    public void NewItem(string? itemTypeName, object? newItemValue)
+    public IItem NewItem(string? itemTypeName, object? newItemValue)
     {
         if (_client.SecretExists(_secretPath.Path))
         {
@@ -104,6 +104,8 @@ public class SecretHandler : PathHandler,
         };
         
         _client.SetSecret(_secretPath.Path, newItemValues);
+
+        return new SecretItem(ParentPath, _secretPath.Path, isContainer: false);
     }
 
     public void RemoveItem()

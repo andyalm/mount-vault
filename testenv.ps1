@@ -7,7 +7,11 @@ param(
 
     [Parameter()]
     [string]
-    $Root = ''
+    $Root = '',
+
+    [Parameter()]
+    [string]
+    $AuthType = 'TokenEnv'
 )
 $ErrorActionPreference='Stop'
 $env:NO_MOUNT_VAULT='1'
@@ -20,5 +24,9 @@ if(-not (Get-Alias cat -ErrorAction SilentlyContinue)) {
 }
 Import-Module $([IO.Path]::Combine($PWD,'src','MountVault','bin','Debug','net6.0','Module','MountVault.psd1'))
 
-New-PSDrive -Name vault -PSProvider MountVault -Root $Root -VaultAddress $VaultAddress
+if($AuthType -ieq 'ldap') {
+    $Credential = Get-Credential
+}
+
+New-PSDrive -Name vault -PSProvider MountVault -Root $Root -VaultAddress $VaultAddress -AuthType $AuthType -Credential $Credential
 cd vault:

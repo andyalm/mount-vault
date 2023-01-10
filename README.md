@@ -16,9 +16,14 @@ New-PSDrive -Name vault -PSProvider MountVault -Root '' -VaultAddress 127.0.0.1:
 
 ## Authentication
 
-Vault supports a few different authentication mechanisms. Right now, the act of authenticating with vault
-is outside the scope of `MountVault`. It expects a `VAULT_TOKEN` environment variable to be set in the session of the powershell instance
+Vault supports [many different authentication mechanisms](https://developer.hashicorp.com/vault/docs/auth). Right now, the only built-in authentication mechanism
+supported by `MountVault` out-of-the-box is `ldap`. However, you can still authenticate on your own, and then `MountVault` can use the vault token in your environment variables.
+By default, it expects a `VAULT_TOKEN` environment variable to be set in the session of the powershell instance
 its running in. If you would like to change the name of the environment variable that its looking for, you can pass the `-VaultTokenEnvironmentVariable` option on the `New-PSDrive` command.
+
+### LDAP authentication
+
+To use the built-in ldap authentication, add `-AuthType ldap -Credential $MyCredentials` to your `New-PSDrive` command.
 
 ## Usage
 
