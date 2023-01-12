@@ -110,7 +110,16 @@ public class SecretHandler : PathHandler,
 
     public void RemoveItem()
     {
-        _client.DeleteSecret(_secretPath.Path);
+        switch(GetItem(Freshness.Guaranteed))
+        {
+            case SecretItem{IsContainer:false}:
+                _client.DeleteSecret(_secretPath.Path);
+                break;
+            case SecretItem{IsContainer:true}:
+                throw new InvalidOperationException("Deleting folders is not currently supported");
+            default:
+                throw new InvalidOperationException($"Secret '{_secretPath.Path}' does not exist");
+        }
     }
 
     private Dictionary<string, string> ToDictionary(PSObject psObject)

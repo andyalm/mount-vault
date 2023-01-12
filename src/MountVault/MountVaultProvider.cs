@@ -1,4 +1,5 @@
-﻿using Autofac;
+﻿using System.Management.Automation;
+using Microsoft.Extensions.DependencyInjection;
 using MountAnything;
 using MountAnything.Routing;
 using MountVault.Authentication;
@@ -6,17 +7,16 @@ using MountVault.Secrets;
 
 namespace MountVault;
 
-public class MountVaultProvider : IMountAnythingProvider
+public class MountVaultProvider : MountAnythingProvider<VaultDriveParameters>
 {
-    public Router CreateRouter()
+    public override Router CreateRouter()
     {
         var router = Router.Create<RootHandler>();
-        router.RegisterServices(builder =>
+        router.ConfigureServices(services =>
         {
-            builder.Register(c => (VaultDriveInfo)c.Resolve<IPathHandlerContext>().DriveInfo);
-            builder.Register(c =>
-                AuthenticationFactory.GetAuthenticator(c.Resolve<VaultDriveInfo>()));
-            builder.RegisterType<VaultClient>();
+            services.AddDriveInfo<VaultDriveInfo>();
+            services.AddTransient(s => AuthenticationFactory.GetAuthenticator(s.GetRequiredService<VaultDriveInfo>()));
+            services.AddTransient<VaultClient>();
         });
         router.MapLiteral<SecretRootHandler>(SecretRootHandler.LiteralContainerName, secret =>
         {
@@ -25,9 +25,13 @@ public class MountVaultProvider : IMountAnythingProvider
 
         return router;
     }
-
-    public IDriveHandler GetDriveHandler()
+    
+    protected override PSDriveInfo NewDrive(PSDriveInfo driveInfo, VaultDriveParameters parameters)
     {
-        return new VaultDriveHandler();
+        var vaultDrive = new VaultDriveInfo(driveInfo, parameters);
+        
+        AuthenticationFactory.GetAuthenticator(vaultDrive).Validate(vaultDrive);
+
+        return vaultDrive;
     }
 }

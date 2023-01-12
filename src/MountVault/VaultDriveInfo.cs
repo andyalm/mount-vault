@@ -4,20 +4,6 @@ using MountVault.Authentication;
 
 namespace MountVault;
 
-public class VaultDriveHandler : IDriveHandler, INewDriveParameters<VaultDriveParameters>
-{
-    public PSDriveInfo NewDrive(PSDriveInfo driveInfo)
-    {
-        var vaultDrive = new VaultDriveInfo(driveInfo, NewDriveParameters);
-        
-        AuthenticationFactory.GetAuthenticator(vaultDrive).Validate(vaultDrive);
-
-        return vaultDrive;
-    }
-
-    public VaultDriveParameters NewDriveParameters { get; set; } = null!;
-}
-
 public class VaultDriveInfo : PSDriveInfo
 {
     public VaultDriveInfo(PSDriveInfo driveInfo, VaultDriveParameters parameters) : base(driveInfo)
